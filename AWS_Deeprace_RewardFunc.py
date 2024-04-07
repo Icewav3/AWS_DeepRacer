@@ -1,4 +1,19 @@
 import math
+
+def calculate_distance(point1, point2):
+    return math.sqrt((point1[0] - point2[0])**2 + (point1[1] - point2[1])**2)
+
+def calculate_curve(pointA, pointB, pointC):
+    a = calculate_distance(pointB, pointC)
+    b = calculate_distance(pointA, pointC)
+    c = calculate_distance(pointA, pointB)
+    s = (a + b + c) / 2
+    area = math.sqrt(s * (s - a) * (s - b) * (s - c))
+    if area == 0:
+        return 0
+    R = (a * b * c) / (4 * area)
+    return 1 / R
+
 def reward_function(params) :
     reward = 0
     all_wheels_on_track = params['all_wheels_on_track']
@@ -53,10 +68,8 @@ def reward_function(params) :
     next_point = waypoints[closest_waypoints[1]]
     prev_point = waypoints[closest_waypoints[0]]
 
-    # Calculate the direction in radius, arctan2(dy, dx), the result is (-pi, pi) in radians
-    track_direction = math.atan2(next_point[1] - prev_point[1], next_point[0] - prev_point[0])
-    # Convert to degree
-    track_direction = math.degrees(track_direction)
+    # Calculate the direction in radius and convert in degrees.
+    track_direction = math.degrees(math.atan2(next_point[1] - prev_point[1], next_point[0] - prev_point[0]))
 
     # Calculate the difference between the track direction and the heading direction of the car
     direction_diff = abs(track_direction - heading)
@@ -67,7 +80,6 @@ def reward_function(params) :
     DIRECTION_THRESHOLD = 10.0
     if direction_diff > DIRECTION_THRESHOLD:
         reward *= 0.5
-
 
     # All wheels on track 
 
@@ -84,56 +96,15 @@ def reward_function(params) :
         # High reward if the car stays on track and goes fast
         reward += 1.0
 
-    # Finding Curvature and adjusting the alignment of vehicle
-
-    def calculate_distance(point1, point2):
-        return math.sqrt((point1[0] - point2[0])**2 + (point1[1] - point2[1])**2)
-
-    def calculate_curve(pointA, pointB, pointC):
-        """Calculate the curvature given three points."""
-        # Calculate the sides of the triangle
-        a = calculate_distance(pointB, pointC)
-        b = calculate_distance(pointA, pointC)
-        c = calculate_distance(pointA, pointB)
-
-        # Calculate the semi-perimeter
-        s = (a + b + c) / 2
-
-        # Calculate the area of the triangle
-        area = math.sqrt(s * (s - a) * (s - b) * (s - c))
-        
-        # Avoid division by zero in case points are collinear
-        if area == 0:
-            return 0
-
-        # Calculate the radius of the circumscribed circle
-        R = (a * b * c) / (4 * area)
-
-        # Calculate curvature (inverse of the radius)
-        curvature = 1 / R
-        return curvature
-
     prev_wp, next_wp = closest_waypoints
 
-    # Select three waypoints to calculate curvature
-    if prev_wp == 0:  # Edge case for the first waypoint
-        pointA = waypoints[prev_wp]
-        pointB = waypoints[next_wp]
-        pointC = waypoints[next_wp + 1]
-    else:
-        pointA = waypoints[prev_wp - 1]
-        pointB = waypoints[prev_wp]
-        pointC = waypoints[next_wp]
-
-    # Calculate the curvature of the next track segment
+    # Speed management based on curvature
+    # Calculate the curvature of the next track segment and adjust speed reward
+    pointA, pointB = waypoints[prev_wp], waypoints[next_wp]
+    pointC = waypoints[next_wp + 1] if next_wp + 1 < len(waypoints) else waypoints[0]  # Loop back if at end
     next_curve = calculate_curve(pointA, pointB, pointC)
-    if next_curve > 60:
-        optimal_speed = 0.8  # Slower speed for sharp curves
-    else:
-        optimal_speed = 1.5  # Faster speed for straight sections
-
-    speed_reward = speed / optimal_speed
-    reward += speed_reward
+    optimal_speed = 0.8 if next_curve > 60 else 1.5
+    reward += speed / optimal_speed
 
     # Steering
 
@@ -151,7 +122,7 @@ def reward_function(params) :
     distance_from_border = 0.5 * track_width - distance_from_center
 
     # Reward higher if the car stays inside the track borders
-    if distance_from_border >= 0.05:
+    if distance_from_border >= 0.10:
         reward += 1.0
     else:
         reward += 1e-3 # Low reward if too close to the border or goes off the track
