@@ -15,7 +15,7 @@ def calculate_curve(pointA, pointB, pointC):
     return 1 / R
 
 def reward_function(params) :
-    reward = 0
+    reward = 1
     all_wheels_on_track = params['all_wheels_on_track']
     speed = params['speed']
     x = params['x']
@@ -39,16 +39,12 @@ def reward_function(params) :
     if not all_wheels_on_track or reverse or off_track or crashed:
         reward += 1e-3 
     
-    
     # Follow center line
     
     # Calculate 3 markers that are at varying distances away from the center line
     marker_1 = 0.1 * track_width
     marker_2 = 0.25 * track_width
     marker_3 = 0.5 * track_width
-    
-    if waypoints == is_left_of_center:
-        reward += 0.5
 
     # Give higher reward if the car is closer to center line and vice versa
     if distance_from_center <= marker_1:
@@ -59,10 +55,12 @@ def reward_function(params) :
         reward += 0.1
     else:
         reward += 1e-3  # likely crashed/ close to off track
-    
+
     # Staying on track
     if all_wheels_on_track and (0.5*track_width - distance_from_center) >= 0.05:
         reward += 1.0
+    else:
+        reward += 1e-3
 
     # Using waypoints
     next_point = waypoints[closest_waypoints[1]]
@@ -106,13 +104,46 @@ def reward_function(params) :
     optimal_speed = 0.8 if next_curve > 60 else 1.5
     reward += speed / optimal_speed
 
+    # Using is_left_of_center
+    # Function to determine if the next turn is left or right
+    def calculate_heading_change(current_heading, next_waypoint, current_position):
+        dx = next_waypoint[0] - current_position[0]
+        dy = next_waypoint[1] - current_position[1]
+        desired_heading = math.degrees(math.atan2(dy, dx))
+        angle_change = desired_heading - current_heading
+        # Normalize to -180 to 180
+        angle_change = (angle_change + 180) % 360 - 180
+        return angle_change
+
+    def is_next_turn_left(current_heading, next_waypoint, current_position):
+        angle_change = calculate_heading_change(current_heading, next_waypoint, current_position)
+        return angle_change < 0  # Negative angle change indicates a left turn
+
+    current_position = (x,y)
+    
+    next_waypoint_index = closest_waypoints[1]
+    next_waypoint = waypoints[next_waypoint_index]
+
+    next_turn_is_left = is_next_turn_left(heading, next_waypoint, current_position)
+
+    if next_turn_is_left:
+        if not is_left_of_center:
+            reward += 1.0  # Reward being on the right if the next turn is left
+        else:
+            reward += 0.5  # Lesser reward for not being optimally positioned
+    else:
+        if is_left_of_center:
+            reward += 1.0  # Reward being on the left if the next turn is right
+        else:
+            reward += 0.5  # Lesser reward for not being optimally positioned
+   
     # Steering
 
     # Read input variable
     abs_steering = abs(steering_angle)
 
     # Penalize if car steer too much to prevent zigzag
-    ABS_STEERING_THRESHOLD = 10.0
+    ABS_STEERING_THRESHOLD = 20.0
     if abs_steering > ABS_STEERING_THRESHOLD:
         reward *= 0.8
 
