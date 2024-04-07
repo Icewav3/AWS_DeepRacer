@@ -42,6 +42,9 @@ def reward_function(params) :
     else:
         reward += 1e-3  # likely crashed/ close to off track
     
+    # Staying on track
+    if all_wheels_on_track and (0.5*track_width - distance_from_center) >= 0.05:
+        reward += 1.0
 
     # Using waypoints
     next_point = waypoints[closest_waypoints[1]]
@@ -85,7 +88,7 @@ def reward_function(params) :
     abs_steering = abs(params['steering_angle'])
 
     # Penalize if car steer too much to prevent zigzag
-    ABS_STEERING_THRESHOLD = 35.0
+    ABS_STEERING_THRESHOLD = 10.0
     if abs_steering > ABS_STEERING_THRESHOLD:
         reward *= 0.8
 
