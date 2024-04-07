@@ -110,16 +110,20 @@ def reward_function(params) :
         curvature = 1 / R
         return curvature
 
-    # Example waypoints (you would replace these with your actual waypoints)
-    pointA = waypoints[closest_waypoints[1]]
-    pointB = waypoints[closest_waypoints[0]]
-    pointC = waypoints[closest_waypoints[2]]
-    
-    # Calculate curvature
-    curvature = calculate_curve(pointA, pointB, pointC)
-    
-    # Dynamic speed reward based on curvature of the next track segment
-    next_curve = calculate_curve(waypoints, closest_waypoints)  # Hypothetical function
+    prev_wp, next_wp = closest_waypoints
+
+    # Select three waypoints to calculate curvature
+    if prev_wp == 0:  # Edge case for the first waypoint
+        pointA = waypoints[prev_wp]
+        pointB = waypoints[next_wp]
+        pointC = waypoints[next_wp + 1]
+    else:
+        pointA = waypoints[prev_wp - 1]
+        pointB = waypoints[prev_wp]
+        pointC = waypoints[next_wp]
+
+    # Calculate the curvature of the next track segment
+    next_curve = calculate_curve(pointA, pointB, pointC)
     if next_curve > 60:
         optimal_speed = 0.8  # Slower speed for sharp curves
     else:
