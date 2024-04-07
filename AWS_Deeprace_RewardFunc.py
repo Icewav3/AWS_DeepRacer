@@ -21,7 +21,7 @@ def reward_function(params) :
     
     
     # Penalize for off-track, crash, or reverse
-    if not all_wheels_on_track or reversed or off_track or crashed:
+    if not all_wheels_on_track or reverse or off_track or crashed:
         reward += 1e-3 
     
     
@@ -32,6 +32,9 @@ def reward_function(params) :
     marker_2 = 0.25 * track_width
     marker_3 = 0.5 * track_width
     
+    if waypoints == is_left_of_center:
+        reward += 0.5
+
     # Give higher reward if the car is closer to center line and vice versa
     if distance_from_center <= marker_1:
         reward += 1.0
