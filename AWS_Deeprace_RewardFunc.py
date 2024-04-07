@@ -138,7 +138,7 @@ def reward_function(params) :
     abs_steering = abs(steering_angle)
 
     # Penalize if car steer too much to prevent zigzag
-    ABS_STEERING_THRESHOLD = 20.0
+    ABS_STEERING_THRESHOLD = 10.0
     if abs_steering > ABS_STEERING_THRESHOLD:
         reward *= 0.8
 
