@@ -138,14 +138,25 @@ def reward_function(params) :
             reward += 0.5  # Lesser reward for not being optimally positioned
     
     # Speed management on straight path
-    def is_straight_path(current_heading, next_waypoint, current_position):
-        STRAIGHT_PATH_THRESHOLD = 10  # Degrees within which the path is considered straight
-        angle_change = calculate_heading_change(current_heading, next_waypoint, current_position)
-        # Check if the absolute angle change is within the threshold
-        return abs(angle_change) < STRAIGHT_PATH_THRESHOLD
-
+    STRAIGHT_PATH_THRESHOLD = 10 
+    
+    def is_straight_path(waypoints, closest_waypoints, lookahead=5):
+        current_index = closest_waypoints[1]  # index of the waypoint just after the vehicle
+        
+        # Ensure we don't go out of bounds by adjusting the lookahead if necessary
+        max_index = min(current_index + lookahead, len(waypoints) - 2)
+        
+        total_angle_change = 0
+        for i in range(current_index, max_index):
+            # Calculate the angle change between three consecutive waypoints
+            angle_change = calculate_heading_change(waypoints[i], waypoints[i + 1], waypoints[i + 2])
+            total_angle_change += abs(angle_change)
+        
+        # Consider the path straight if the total angle change is minimal
+        return total_angle_change < STRAIGHT_PATH_THRESHOLD
+    
     # Reward for maintaining high speed on straight paths
-    if is_straight_path(heading, next_waypoint, current_position):
+    if is_straight_path(waypoints, closest_waypoints):
         if speed > SPEED_THRESHOLD:  # Encourage maintaining high speed on straight paths
             reward += 1.0
         else:
