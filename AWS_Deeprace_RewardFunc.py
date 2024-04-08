@@ -143,11 +143,19 @@ def reward_function(params) :
         angle_change = calculate_heading_change(current_heading, next_waypoint, current_position)
         # Check if the absolute angle change is within the threshold
         return abs(angle_change) < STRAIGHT_PATH_THRESHOLD
-    
+
+    # Reward for maintaining high speed on straight paths
     if is_straight_path(heading, next_waypoint, current_position):
-        reward += 1.0
+        if speed > SPEED_THRESHOLD:  # Encourage maintaining high speed on straight paths
+            reward += 1.0
+        else:
+            reward += 0.75  # Still on a straight path but not at optimal speed
     else:
-        reward += 0.5
+        # Handling curves
+        if abs(steering_angle) < ABS_STEERING_THRESHOLD and speed < optimal_speed:
+            reward += 0.75  # Reward for smooth and controlled handling of curves
+        else:
+            reward += 0.5
 
     # Steering
 
