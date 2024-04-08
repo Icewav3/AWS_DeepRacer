@@ -136,7 +136,19 @@ def reward_function(params) :
             reward += 1.0  # Reward being on the left if the next turn is right
         else:
             reward += 0.5  # Lesser reward for not being optimally positioned
-   
+    
+    # Speed management on straight path
+    def is_straight_path(current_heading, next_waypoint, current_position):
+        STRAIGHT_PATH_THRESHOLD = 10  # Degrees within which the path is considered straight
+        angle_change = calculate_heading_change(current_heading, next_waypoint, current_position)
+        # Check if the absolute angle change is within the threshold
+        return abs(angle_change) < STRAIGHT_PATH_THRESHOLD
+    
+    if is_straight_path(heading, next_waypoint, current_position):
+        reward += 1.0
+    else:
+        reward += 0.5
+
     # Steering
 
     # Read input variable
