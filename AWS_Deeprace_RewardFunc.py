@@ -138,8 +138,19 @@ def reward_function(params) :
             reward += 0.5  # Lesser reward for not being optimally positioned
     
     # Speed management on straight path
-    STRAIGHT_PATH_THRESHOLD = 10 
-    
+    STRAIGHT_PATH_THRESHOLD = 10
+    ABS_STEERING_THRESHOLD = 20.0
+
+    def calculate_heading_change_st(wp1, wp2, wp3):
+        # Placeholder logic for calculating heading change
+        # This is a simplified version and may need adjustments based on actual requirements
+        dx1, dy1 = wp2[0] - wp1[0], wp2[1] - wp1[1]
+        dx2, dy2 = wp3[0] - wp2[0], wp3[1] - wp2[1]
+        angle1 = math.atan2(dy1, dx1)
+        angle2 = math.atan2(dy2, dx2)
+        angle_change_st = math.degrees(angle2 - angle1)
+        return abs(angle_change_st)  # Ensure this returns a single numeric value
+
     def is_straight_path(waypoints, closest_waypoints, lookahead=5):
         current_index = closest_waypoints[1]  # index of the waypoint just after the vehicle
         
@@ -149,8 +160,8 @@ def reward_function(params) :
         total_angle_change = 0
         for i in range(current_index, max_index):
             # Calculate the angle change between three consecutive waypoints
-            angle_change = calculate_heading_change(waypoints[i], waypoints[i + 1], waypoints[i + 2])
-            total_angle_change += abs(angle_change)
+            angle_change_st = calculate_heading_change_st(waypoints[i], waypoints[i + 1], waypoints[i + 2])
+            total_angle_change += abs(angle_change_st)
         
         # Consider the path straight if the total angle change is minimal
         return total_angle_change < STRAIGHT_PATH_THRESHOLD
@@ -174,9 +185,8 @@ def reward_function(params) :
     abs_steering = abs(steering_angle)
 
     # Penalize if car steer too much to prevent zigzag
-    ABS_STEERING_THRESHOLD = 20.0
     if abs_steering > ABS_STEERING_THRESHOLD:
-        reward *= 0.8
+        reward *= 0.5
 
     # Track width
 
