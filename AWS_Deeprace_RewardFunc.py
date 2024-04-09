@@ -81,8 +81,8 @@ def reward_function(params) :
 
     # All wheels on track 
 
-    # Set the speed threshold based your action space
-    SPEED_THRESHOLD = 1.0
+    # Set the speed threshold based on our action space
+    SPEED_THRESHOLD = 2.0
 
     if not all_wheels_on_track:
         # Penalize if the car goes off track
@@ -198,6 +198,16 @@ def reward_function(params) :
         reward += 1.0
     else:
         reward += 1e-3 # Low reward if too close to the border or goes off the track
+
+    center_lane = list(range(1, 121))
+    marker = 0.1 * track_width  # 10% of the track width
+    if closest_waypoints[1] in center_lane:
+        if distance_from_center < marker:
+            reward += 5  # Closer to the center-higher reward
+        else:
+            reward += (1 - (distance_from_center / marker)) * 5  # Scaling the reward based on closeness to the center
+    else:
+        reward += 0.5
 
     # Normalize the reward to be between 0 and 1
     reward = max(min(reward, 1.0), 0.0)
