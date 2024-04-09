@@ -82,7 +82,7 @@ def reward_function(params) :
     # All wheels on track 
 
     # Set the speed threshold based on our action space
-    SPEED_THRESHOLD = 2.0
+    SPEED_THRESHOLD = 1.25
 
     if not all_wheels_on_track:
         # Penalize if the car goes off track
