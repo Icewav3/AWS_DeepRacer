@@ -82,7 +82,7 @@ def reward_function(params) :
     # All wheels on track 
 
     # Set the speed threshold based on our action space
-    SPEED_THRESHOLD = 1.25
+    SPEED_THRESHOLD = 1.5
 
     if not all_wheels_on_track:
         # Penalize if the car goes off track
@@ -143,13 +143,12 @@ def reward_function(params) :
 
     def calculate_heading_change_st(wp1, wp2, wp3):
         # Placeholder logic for calculating heading change
-        # This is a simplified version and may need adjustments based on actual requirements
         dx1, dy1 = wp2[0] - wp1[0], wp2[1] - wp1[1]
         dx2, dy2 = wp3[0] - wp2[0], wp3[1] - wp2[1]
         angle1 = math.atan2(dy1, dx1)
         angle2 = math.atan2(dy2, dx2)
         angle_change_st = math.degrees(angle2 - angle1)
-        return abs(angle_change_st)  # Ensure this returns a single numeric value
+        return abs(angle_change_st)  
 
     def is_straight_path(waypoints, closest_waypoints, lookahead=5):
         current_index = closest_waypoints[1]  # index of the waypoint just after the vehicle
@@ -169,7 +168,7 @@ def reward_function(params) :
     # Reward for maintaining high speed on straight paths
     if is_straight_path(waypoints, closest_waypoints):
         if speed > SPEED_THRESHOLD:  # Encourage maintaining high speed on straight paths
-            reward += 1.0
+            reward += 1.25
         else:
             reward += 0.75  # Still on a straight path but not at optimal speed
     else:
@@ -198,16 +197,6 @@ def reward_function(params) :
         reward += 1.0
     else:
         reward += 1e-3 # Low reward if too close to the border or goes off the track
-
-    center_lane = list(range(1, 121))
-    marker = 0.1 * track_width  # 10% of the track width
-    if closest_waypoints[1] in center_lane:
-        if distance_from_center < marker:
-            reward += 5  # Closer to the center-higher reward
-        else:
-            reward += (1 - (distance_from_center / marker)) * 5  # Scaling the reward based on closeness to the center
-    else:
-        reward += 0.5
 
     # Normalize the reward to be between 0 and 1
     reward = max(min(reward, 1.0), 0.0)
