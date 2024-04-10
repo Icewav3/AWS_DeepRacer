@@ -37,7 +37,9 @@ def reward_function(params) :
     
     # Penalize for off-track, crash, or reverse
     if not all_wheels_on_track or reverse or off_track or crashed:
-        reward += 1e-3 
+        reward += 1e-3
+    else:
+        reward += 1.0
     
     # Follow center line
     
@@ -82,7 +84,7 @@ def reward_function(params) :
     # All wheels on track 
 
     # Set the speed threshold based your action space
-    SPEED_THRESHOLD = 1.0
+    SPEED_THRESHOLD = 1.35
 
     if not all_wheels_on_track:
         # Penalize if the car goes off track
@@ -146,6 +148,8 @@ def reward_function(params) :
     ABS_STEERING_THRESHOLD = 20.0
     if abs_steering > ABS_STEERING_THRESHOLD:
         reward *= 0.8
+    else:
+        reward += 1
 
     # Track width
 
