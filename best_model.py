@@ -167,7 +167,7 @@ def reward_function(params) :
 
     # Reward for completing a lap
     if progress >= completion_threshold:
-        reward += 10.0  #significant bonus for lap completion
+        reward += 5.0  #significant bonus for lap completion
 
     # Normalize the reward to be between 0 and 1
     reward = max(min(reward, 1.0), 0.0)
