@@ -61,8 +61,6 @@ def reward_function(params) :
     # Staying on track
     if all_wheels_on_track and (0.5*track_width - distance_from_center) >= 0.05:
         reward += 1.0
-    else:
-        reward += 1e-3
 
     # Using waypoints
     next_point = waypoints[closest_waypoints[1]]
@@ -148,8 +146,6 @@ def reward_function(params) :
     ABS_STEERING_THRESHOLD = 20.0
     if abs_steering > ABS_STEERING_THRESHOLD:
         reward *= 0.8
-    else:
-        reward += 1
 
     # Track width
 
