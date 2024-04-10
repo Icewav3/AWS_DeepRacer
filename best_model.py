@@ -82,7 +82,7 @@ def reward_function(params) :
     # All wheels on track 
 
     # Set the speed threshold based your action space
-    SPEED_THRESHOLD = 1.30
+    SPEED_THRESHOLD = 1.0
 
     if not all_wheels_on_track:
         # Penalize if the car goes off track
@@ -157,13 +157,6 @@ def reward_function(params) :
         reward += 1.0
     else:
         reward += 1e-3 # Low reward if too close to the border or goes off the track
-
-    # Threshold for completion
-    completion_threshold = 99.0 
-
-    # Reward for completing a lap
-    if progress >= completion_threshold:
-        reward += 5.0  #significant bonus for lap completion
 
     # Normalize the reward to be between 0 and 1
     reward = max(min(reward, 1.0), 0.0)
