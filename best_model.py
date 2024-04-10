@@ -162,6 +162,13 @@ def reward_function(params) :
     else:
         reward += 1e-3 # Low reward if too close to the border or goes off the track
 
+    # Threshold for completion
+    completion_threshold = 99.0 
+
+    # Reward for completing a lap
+    if progress >= completion_threshold:
+        reward += 10.0  #significant bonus for lap completion
+
     # Normalize the reward to be between 0 and 1
     reward = max(min(reward, 1.0), 0.0)
 
