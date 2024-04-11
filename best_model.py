@@ -37,9 +37,7 @@ def reward_function(params) :
     
     # Penalize for off-track, crash, or reverse
     if not all_wheels_on_track or reverse or off_track or crashed:
-        reward += 1e-3
-    else:
-        reward += 1.0
+        reward += 1e-3 
     
     # Follow center line
     
@@ -61,6 +59,8 @@ def reward_function(params) :
     # Staying on track
     if all_wheels_on_track and (0.5*track_width - distance_from_center) >= 0.05:
         reward += 1.0
+    else:
+        reward += 1e-3
 
     # Using waypoints
     next_point = waypoints[closest_waypoints[1]]
