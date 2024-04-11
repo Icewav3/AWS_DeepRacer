@@ -32,10 +32,7 @@ def reward_function(params) :
     off_track = params['is_offtrack']
     heading = params['heading']
     track_width = params['track_width']
-    track_length = params['track_length']
     distance_from_center = params['distance_from_center']
-    steps = params['steps']
-    progress = params['progress']
     steering_angle = params['steering_angle']
     
     
