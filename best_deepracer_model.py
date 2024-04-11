@@ -35,7 +35,7 @@ def reward_function(params) :
     distance_from_center = params['distance_from_center']
     steering_angle = params['steering_angle']
     
-    
+
     # Penalizing for off-track, crash, or reverse.
     if not all_wheels_on_track or reverse or off_track or crashed:
         reward += 1e-3 
@@ -55,7 +55,7 @@ def reward_function(params) :
     elif distance_from_center <= marker_3:
         reward += 0.1
     else:
-        reward += 1e-3  # likely crashed/ close to off track
+        reward += 1e-3  #Likely crashed/close to off track
 
     # Making sure the model is staying on track and receives reward accordingly.
     if all_wheels_on_track and (0.5*track_width - distance_from_center) >= 0.05:
